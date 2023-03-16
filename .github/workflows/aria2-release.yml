@@ -1,0 +1,39 @@
+name: Release Aria2
+on: workflow_dispatch
+
+jobs:
+  build:
+    uses: ./.github/workflows/aria2.yml
+
+  release:
+    needs: build
+    runs-on: windows-latest
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+      - name: Test
+        shell: bash
+        run: |
+          for d in aria2-1*; do
+            if [ -d "$d" ]; then
+              echo "=== $d ==="
+              7z a $d.zip $d
+              rm -rf $d
+            fi
+          done
+
+          echo "releasedate=$(date +"%Y%m%d")" >> $GITHUB_ENV
+
+      - name: Release
+        uses: ncipollo/release-action@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ env.releasedate }}
+          allowUpdates: true
+          body: Development Build
+          prerelease: true
+          replacesArtifacts: true
+          artifacts: |
+            *.zip
+            ./about-aria2-with-openssl3/about-aria2-with-openssl3.txt
+            ./aria2-src.tar.gz/aria2-src.tar.gz

@@ -1,0 +1,176 @@
+name: Build Aria2 with msys2
+
+on:
+  push:
+    paths-ignore:
+      - '.github/**'
+    branches:
+      - master
+  workflow_dispatch:
+  workflow_call:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
+    strategy:
+      # fail-fast: true
+      # max-parallel: 2
+      matrix:
+        sys: [mingw64, ucrt64, clang64]
+        tls: [wintls, openssl, gnutls]
+        include:
+        - sys: mingw64
+          env: x86_64
+        - sys: ucrt64
+          env: ucrt-x86_64
+        - sys: clang64
+          env: clang-x86_64
+    steps:
+      - name: Install toolchain and libraries
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: ${{ matrix.sys }}
+          update: true
+          install: >-
+            git
+            make
+            upx
+            patch
+            mingw-w64-${{ matrix.env }}-toolchain
+            mingw-w64-${{ matrix.env }}-pkgconf
+            mingw-w64-${{ matrix.env }}-autotools
+            mingw-w64-${{ matrix.env }}-c-ares
+            mingw-w64-${{ matrix.env }}-libxml2
+            mingw-w64-${{ matrix.env }}-libssh2
+            mingw-w64-${{ matrix.env }}-sqlite3
+            mingw-w64-${{ matrix.env }}-nettle
+      - run: git config --global core.autocrlf false
+        shell: bash
+      - name: Checkout aria2
+        uses: actions/checkout@v3
+        with:
+          repository: aria2/aria2
+          fetch-depth: 0
+          path: ./aria2
+      - name: Checkout build
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          path: ./build
+      - name: Install openssl
+        if: matrix.tls == 'openssl'
+        run: |
+          pacman -S --noconfirm mingw-w64-${{ matrix.env }}-openssl mingw-w64-${{ matrix.env }}-ca-certificates
+      - name: Install gnutls
+        if: matrix.tls == 'gnutls'
+        run: |
+          pacman -S --noconfirm mingw-w64-${{ matrix.env }}-gnutls
+      - name: Patch
+        run: |
+          cd aria2
+          patch -p1 < ../build/patchs/0001-fix-link-error-in-msys2.patch
+      - name: Configure
+        run: |
+          if [ "${{ matrix.tls }}" == "wintls" ]; then
+            export SSL_CONFIG="--with-wintls --without-gnutls --without-openssl"
+          fi
+          if [ "${{ matrix.tls }}" == "openssl" ]; then
+            export SSL_CONFIG="--without-wintls --without-gnutls --with-openssl"
+          fi
+          if [ "${{ matrix.tls }}" == "gnutls" ]; then
+            export SSL_CONFIG="--without-wintls --with-gnutls --without-openssl"
+          fi
+
+          cd aria2
+          autoreconf -i
+          ./configure ARIA2_STATIC=yes ${SSL_CONFIG}
+
+          if [ "${{ matrix.tls }}" == "gnutls" ]; then
+            sed 's/-lp11-kit/-lp11-kit.dll/g' -i src/Makefile
+          fi
+      - name: Build
+        run: |
+          cd aria2
+          make all -j$(grep -c ^processor /proc/cpuinfo)
+      - name: Deploy - strip
+        run: |
+          cd aria2
+          strip src/aria2c.exe
+      # - name: Deploy - upx
+      #   if: false == (matrix.tls == 'gnutls' && matrix.sys == 'clang64')
+      #   run: |
+      #     cd aria2
+      #     upx --best --brute --ultra-brute -v src/aria2c.exe
+      - name: Deploy - create file name
+        run: |
+          cd aria2
+          VERSION=`grep AC_INIT configure.ac | sed '/AC_INIT/ s/AC_INIT(\[aria2\],\[\([^]]\+\)\],.*/\1/'`
+          echo "filename=aria2-$VERSION-${{ matrix.env }}-${{ matrix.tls }}" >> $GITHUB_ENV
+      - name: Deploy - copy file
+        run: |
+          mkdir ${{ env.filename }}
+          cp aria2/AUTHORS aria2/COPYING aria2/ChangeLog aria2/LICENSE.OpenSSL aria2/NEWS aria2/README.html aria2/README.mingw aria2/src/aria2c.exe ${{ env.filename }}
+      - name: Deploy - openssl
+        if: matrix.tls == 'openssl'
+        run: |
+          cp -rvf $MSYSTEM_PREFIX/lib/ossl-modules ${{ env.filename }}/
+          cp -rvf $MSYSTEM_PREFIX/bin/libcrypto-*.dll ${{ env.filename }}/
+          cp -rvf $MSYSTEM_PREFIX/bin/libssl-*.dll ${{ env.filename }}/
+          cp -rvf $MSYSTEM_PREFIX/etc/ssl/certs/ca-bundle.crt ${{ env.filename }}/
+      - name: Deploy - gnutls
+        if: matrix.tls == 'gnutls'
+        run: |
+          ldd ./${{ env.filename }}/aria2c.exe | grep "=> /" | grep ${{ matrix.sys }} | awk '{print $3}' | xargs -I '{}' cp -v '{}' ./${{ env.filename }}/
+          find ./${{ env.filename }}/ -name '*.dll' -exec strip {} \;
+      - name: Upload
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.filename }}
+          path: ./${{ env.filename }}/
+  openssl3-doc:
+    needs: build
+    runs-on: windows-latest
+    steps:
+      - name: Create openssl3 document
+        shell: bash
+        run: |
+          echo -e "step1:
+          add a environment variable 'OPENSSL_MODULES' and set to 'ossl-modules' folder
+
+          step2:
+          run aria2c with '--ca-certificate' option and set to 'ca-bundle.crt' file
+
+          reference:
+          https://github.com/php/php-src/issues/9890#issuecomment-1303855417
+          https://github.com/aria2/aria2/issues/889" > about-aria2-with-openssl3.txt
+
+          unix2dos about-aria2-with-openssl3.txt
+      - name: Upload
+        uses: actions/upload-artifact@v3
+        with:
+          name: about-aria2-with-openssl3
+          path: about-aria2-with-openssl3.txt
+  aria2-source:
+    needs: build
+    runs-on: windows-latest
+    steps:
+      - run: git config --global core.autocrlf false
+        shell: bash
+      - name: Checkout aria2
+        uses: actions/checkout@v3
+        with:
+          repository: aria2/aria2
+          fetch-depth: 0
+          path: ./aria2
+      - name: Export
+        run: |
+          cd aria2
+          git archive --format=tar.gz HEAD > ../aria2-src.tar.gz
+      - name: Upload
+        uses: actions/upload-artifact@v3
+        with:
+          name: aria2-src.tar.gz
+          path: aria2-src.tar.gz
