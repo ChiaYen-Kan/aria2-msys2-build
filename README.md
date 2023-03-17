@@ -1,5 +1,7 @@
 ## Readme
-use githut action to build [aria2](https://github.com/aria2/aria2) with current msys2 system
+[![Build Aria2 with msys2](https://github.com/ChiaYen-Kan/aria2-msys2-build/actions/workflows/aria2.yml/badge.svg?branch=master)](https://github.com/ChiaYen-Kan/aria2-msys2-build/actions/workflows/aria2.yml)
+
+use github action to build [aria2](https://github.com/aria2/aria2) with current msys2 system
 
 all lib use msys2 pre-build version without custom build
 
@@ -38,3 +40,4 @@ https://github.com/aria2/aria2/issues/889
 ------------
 ### Issue
 if have any issue, please report to [aria2](https://github.com/aria2/aria2/issues), this repository just a build script can't fix any issue
+
