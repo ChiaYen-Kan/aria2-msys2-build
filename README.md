@@ -1,5 +1,6 @@
 ## Readme
 ![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/ChiaYen-Kan/aria2-msys2-build/aria2.yml)
+![GitHub release](https://img.shields.io/github/v/release/ChiaYen-Kan/aria2-msys2-build?include_prereleases)
 
 use github action to build [aria2](https://github.com/aria2/aria2) with current msys2 system
 
