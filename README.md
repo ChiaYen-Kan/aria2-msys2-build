@@ -1,5 +1,5 @@
 ## Readme
-[![Build Aria2 with msys2](https://github.com/ChiaYen-Kan/aria2-msys2-build/actions/workflows/aria2.yml/badge.svg?branch=master)](https://github.com/ChiaYen-Kan/aria2-msys2-build/actions/workflows/aria2.yml)
+![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/ChiaYen-Kan/aria2-msys2-build/aria2.yml)
 
 use github action to build [aria2](https://github.com/aria2/aria2) with current msys2 system
 
