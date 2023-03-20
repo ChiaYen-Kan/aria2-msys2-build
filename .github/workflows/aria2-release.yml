@@ -27,6 +27,7 @@ jobs:
       - name: Release
         uses: ncipollo/release-action@v1
         with:
+          name: Development Build - ${{ env.releasedate }}
           token: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ env.releasedate }}
           allowUpdates: true
