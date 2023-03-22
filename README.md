@@ -2,7 +2,7 @@
 [![GitHub release](https://img.shields.io/github/v/release/ChiaYen-Kan/aria2-msys2-build?include_prereleases)](https://github.com/ChiaYen-Kan/aria2-msys2-build/releases)
 
 ## Readme
-use github action to build [aria2](https://github.com/aria2/aria2) with current msys2 system
+use github action to build [aria2](https://github.com/aria2/aria2) with current [msys2](https://www.msys2.org/) system
 
 all lib use msys2 pre-build version without custom build
 
