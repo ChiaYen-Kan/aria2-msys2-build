@@ -87,7 +87,7 @@ jobs:
 
           cd aria2
           autoreconf -i
-          ./configure ARIA2_STATIC=yes ${SSL_CONFIG}
+          ./configure ARIA2_STATIC=yes CXXFLAGS="-g -O2 -std=gnu++14" ${SSL_CONFIG}
 
           if [ "${{ matrix.tls }}" == "gnutls" ]; then
             sed 's/-lp11-kit/-lp11-kit.dll/g' -i src/Makefile
