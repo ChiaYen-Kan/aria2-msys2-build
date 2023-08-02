@@ -70,11 +70,12 @@ jobs:
         run: |
           pacman -S --noconfirm mingw-w64-${{ matrix.env }}-gnutls
       - name: Patch
+        working-directory: ./aria2
         run: |
-          cd aria2
           patch -p1 < ../build/patchs/0001-fix-link-error-in-msys2.patch
           patch -p1 < ../build/patchs/0002-fix-libssh2-static-link-error-in-msys2.patch
       - name: Configure
+        working-directory: ./aria2
         run: |
           if [ "${{ matrix.tls }}" == "wintls" ]; then
             export SSL_CONFIG="--with-wintls --without-gnutls --without-openssl"
@@ -86,7 +87,6 @@ jobs:
             export SSL_CONFIG="--without-wintls --with-gnutls --without-openssl"
           fi
 
-          cd aria2
           autoreconf -i
           ./configure ARIA2_STATIC=yes CXXFLAGS="-g -O2 -std=gnu++14" ${SSL_CONFIG}
 
@@ -94,21 +94,21 @@ jobs:
             sed 's/-lp11-kit/-lp11-kit.dll/g' -i src/Makefile
           fi
       - name: Build
+        working-directory: ./aria2
         run: |
-          cd aria2
           make all -j$(grep -c ^processor /proc/cpuinfo)
       - name: Deploy - strip
+        working-directory: ./aria2
         run: |
-          cd aria2
           strip src/aria2c.exe
       # - name: Deploy - upx
+      #   working-directory: ./aria2
       #   if: false == (matrix.tls == 'gnutls' && matrix.sys == 'clang64')
       #   run: |
-      #     cd aria2
       #     upx --best --brute --ultra-brute -v src/aria2c.exe
       - name: Deploy - create file name
+        working-directory: ./aria2
         run: |
-          cd aria2
           VERSION=`grep AC_INIT configure.ac | sed '/AC_INIT/ s/AC_INIT(\[aria2\],\[\([^]]\+\)\],.*/\1/'`
           echo "filename=aria2-$VERSION-${{ matrix.env }}-${{ matrix.tls }}" >> $GITHUB_ENV
       - name: Deploy - copy file
@@ -168,8 +168,8 @@ jobs:
           fetch-depth: 0
           path: ./aria2
       - name: Export
+        working-directory: ./aria2
         run: |
-          cd aria2
           git archive --format=tar.gz HEAD > ../aria2-src.tar.gz
       - name: Upload
         uses: actions/upload-artifact@v3
