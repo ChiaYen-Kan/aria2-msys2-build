@@ -73,6 +73,7 @@ jobs:
         run: |
           cd aria2
           patch -p1 < ../build/patchs/0001-fix-link-error-in-msys2.patch
+          patch -p1 < ../build/patchs/0002-fix-libssh2-static-link-error-in-msys2.patch
       - name: Configure
         run: |
           if [ "${{ matrix.tls }}" == "wintls" ]; then
