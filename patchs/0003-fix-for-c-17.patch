@@ -1,0 +1,68 @@
+From 207c52bcc7ea8ce903074616e7e18efc287157e7 Mon Sep 17 00:00:00 2001
+From: ChiaYen Kan <kcygamil@gmail.com>
+Date: Thu, 3 Aug 2023 10:02:26 +0800
+Subject: [PATCH] fix for c++17
+
+---
+ src/ConsoleStatCalc.h | 2 +-
+ src/CookieStorage.cc  | 2 +-
+ src/MetalinkEntry.cc  | 3 +--
+ src/a2functional.h    | 2 +-
+ 4 files changed, 4 insertions(+), 5 deletions(-)
+
+diff --git a/src/ConsoleStatCalc.h b/src/ConsoleStatCalc.h
+index 3940ef0e..76bfd5b7 100644
+--- a/src/ConsoleStatCalc.h
++++ b/src/ConsoleStatCalc.h
+@@ -45,7 +45,7 @@
+ 
+ namespace aria2 {
+ 
+-class SizeFormatter : public std::unary_function<int64_t, std::string> {
++class SizeFormatter {
+ protected:
+   virtual std::string format(int64_t size) const = 0;
+ 
+diff --git a/src/CookieStorage.cc b/src/CookieStorage.cc
+index 56db33ed..3dbafdec 100644
+--- a/src/CookieStorage.cc
++++ b/src/CookieStorage.cc
+@@ -352,7 +352,7 @@ public:
+ } // namespace
+ 
+ namespace {
+-class OrderByPathDepthDesc : public std::binary_function<Cookie, Cookie, bool> {
++class OrderByPathDepthDesc {
+ public:
+   bool operator()(const CookiePathDivider& lhs,
+                   const CookiePathDivider& rhs) const
+diff --git a/src/MetalinkEntry.cc b/src/MetalinkEntry.cc
+index 3567f06d..d18afd22 100644
+--- a/src/MetalinkEntry.cc
++++ b/src/MetalinkEntry.cc
+@@ -102,8 +102,7 @@ void MetalinkEntry::reorderMetaurlsByPriority()
+ }
+ 
+ namespace {
+-class Supported
+-    : public std::unary_function<std::shared_ptr<MetalinkResource>, bool> {
++class Supported {
+ public:
+   bool operator()(const std::shared_ptr<MetalinkResource>& res) const
+   {
+diff --git a/src/a2functional.h b/src/a2functional.h
+index c1059fef..8c8a18ba 100644
+--- a/src/a2functional.h
++++ b/src/a2functional.h
+@@ -103,7 +103,7 @@ std::string strjoin(InputIterator first, InputIterator last,
+ }
+ 
+ template <typename T>
+-class LeastRecentAccess : public std::binary_function<T, T, bool> {
++class LeastRecentAccess {
+ public:
+   bool operator()(const std::shared_ptr<T>& lhs,
+                   const std::shared_ptr<T>& rhs) const
+-- 
+2.30.0.windows.2
+

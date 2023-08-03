@@ -74,6 +74,7 @@ jobs:
         run: |
           patch -p1 < ../build/patchs/0001-fix-link-error-in-msys2.patch
           patch -p1 < ../build/patchs/0002-fix-libssh2-static-link-error-in-msys2.patch
+          patch -p1 < ../build/patchs/0003-fix-for-c-17.patch
       - name: Configure
         working-directory: ./aria2
         run: |
@@ -88,7 +89,7 @@ jobs:
           fi
 
           autoreconf -i
-          ./configure ARIA2_STATIC=yes CXXFLAGS="-g -O2 -std=gnu++14" ${SSL_CONFIG}
+          ./configure ARIA2_STATIC=yes ${SSL_CONFIG}
 
           if [ "${{ matrix.tls }}" == "gnutls" ]; then
             sed 's/-lp11-kit/-lp11-kit.dll/g' -i src/Makefile
