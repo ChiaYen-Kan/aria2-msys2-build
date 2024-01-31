@@ -51,13 +51,13 @@ jobs:
       - run: git config --global core.autocrlf false
         shell: bash
       - name: Checkout aria2
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: aria2/aria2
           fetch-depth: 0
           path: ./aria2
       - name: Checkout build
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
           path: ./build
@@ -73,8 +73,6 @@ jobs:
         working-directory: ./aria2
         run: |
           patch -p1 < ../build/patchs/0001-fix-link-error-in-msys2.patch
-          patch -p1 < ../build/patchs/0002-fix-libssh2-static-link-error-in-msys2.patch
-          patch -p1 < ../build/patchs/0003-fix-for-c-17.patch
       - name: Configure
         working-directory: ./aria2
         run: |
@@ -129,7 +127,7 @@ jobs:
           ldd ./${{ env.filename }}/aria2c.exe | grep "=> /" | grep ${{ matrix.sys }} | awk '{print $3}' | xargs -I '{}' cp -v '{}' ./${{ env.filename }}/
           find ./${{ env.filename }}/ -name '*.dll' -exec strip {} \;
       - name: Upload
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ env.filename }}
           path: ./${{ env.filename }}/
@@ -152,7 +150,7 @@ jobs:
 
           unix2dos about-aria2-with-openssl3.txt
       - name: Upload
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: about-aria2-with-openssl3
           path: about-aria2-with-openssl3.txt
@@ -163,7 +161,7 @@ jobs:
       - run: git config --global core.autocrlf false
         shell: bash
       - name: Checkout aria2
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: aria2/aria2
           fetch-depth: 0
@@ -173,7 +171,7 @@ jobs:
         run: |
           git archive --format=tar.gz HEAD > ../aria2-src.tar.gz
       - name: Upload
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: aria2-src.tar.gz
           path: aria2-src.tar.gz
