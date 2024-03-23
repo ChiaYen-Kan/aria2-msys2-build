@@ -91,6 +91,7 @@ jobs:
 
           if [ "${{ matrix.tls }}" == "gnutls" ]; then
             sed 's/-lp11-kit/-lp11-kit.dll/g' -i src/Makefile
+            sed 's\-lhogweed\/${{ matrix.sys }}/lib/libhogweed.dll.a\g' -i src/Makefile
           fi
       - name: Build
         working-directory: ./aria2
