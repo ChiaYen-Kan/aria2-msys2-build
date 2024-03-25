@@ -9,7 +9,7 @@ all lib use msys2 pre-build version without custom build
 ------------
 ### Versions
 
-current (at 2023-8) build with 3 system lib and 3 tls lib
+current (at 2024-4) build with 3 system lib and 3 tls lib
 
 |  | wintls | openssl 3 | gnutls |
 |-|:-:|:-------------:|:------:|
