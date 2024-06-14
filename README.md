@@ -42,3 +42,5 @@ https://github.com/aria2/aria2/issues/889
 ### Issue
 if have any issue, please report to [aria2](https://github.com/aria2/aria2/issues), this repository just a build script can't fix any issue
 
+------------
+[![Star History Chart](https://api.star-history.com/svg?repos=ChiaYen-Kan/aria2-msys2-build&type=Date)](https://star-history.com/#ChiaYen-Kan/aria2-msys2-build&Date)
