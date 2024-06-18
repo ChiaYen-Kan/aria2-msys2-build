@@ -20,9 +20,13 @@ jobs:
       # fail-fast: true
       # max-parallel: 2
       matrix:
-        sys: [clang64]
+        sys: [mingw64, ucrt64, clang64]
         tls: [gnutls]
         include:
+        - sys: mingw64
+          env: x86_64
+        - sys: ucrt64
+          env: ucrt-x86_64
         - sys: clang64
           env: clang-x86_64
     steps:
