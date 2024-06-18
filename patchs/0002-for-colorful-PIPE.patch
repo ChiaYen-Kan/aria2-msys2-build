@@ -1,0 +1,152 @@
+From 6792dd3ae89fb2444208922a8e2b5f9635202573 Mon Sep 17 00:00:00 2001
+From: ChiaYen Kan <kcygamil@gmail.com>
+Date: Tue, 18 Jun 2024 11:47:42 +0800
+Subject: [PATCH] fix for when use in colorful PIPE can direct output color
+ code
+
+---
+ src/DirectOutputFile.h | 93 ++++++++++++++++++++++++++++++++++++++++++
+ src/Makefile.am        |  2 +-
+ src/console.cc         |  6 +--
+ 3 files changed, 97 insertions(+), 4 deletions(-)
+ create mode 100644 src/DirectOutputFile.h
+
+diff --git a/src/DirectOutputFile.h b/src/DirectOutputFile.h
+new file mode 100644
+index 00000000..6a4548d9
+--- /dev/null
++++ b/src/DirectOutputFile.h
+@@ -0,0 +1,93 @@
++/* <!-- copyright */
++/*
++ * aria2 - The high speed download utility
++ *
++ * Copyright (C) 2011 Tatsuhiro Tsujikawa
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
++ *
++ * In addition, as a special exception, the copyright holders give
++ * permission to link the code of portions of this program with the
++ * OpenSSL library under certain conditions as described in each
++ * individual source file, and distribute linked combinations
++ * including the two.
++ * You must obey the GNU General Public License in all respects
++ * for all of the code used other than OpenSSL.  If you modify
++ * file(s) with this exception, you may extend this exception to your
++ * version of the file(s), but you are not obligated to do so.  If you
++ * do not wish to do so, delete this exception statement from your
++ * version.  If you delete this exception statement from all source
++ * files in the program, then also delete it here.
++ */
++/* copyright --> */
++#ifndef D_DIRECT_OUTPUT_FILE_H
++#define D_DIRECT_OUTPUT_FILE_H
++
++#include "OutputFile.h"
++#include <cstdio>
++#include <unistd.h>
++
++namespace aria2 {
++
++class DirectOutputFile : public OutputFile {
++public:
++  DirectOutputFile(FILE *fp): fp_(fp)
++  {
++  }
++
++  virtual ~DirectOutputFile()
++  {
++    int rv = 0;
++    if (fp_) {
++      fflush(fp_);
++#ifndef __MINGW32__
++      fsync(fileno(fp_));
++#else  // __MINGW32__
++      _commit(fileno(fp_));
++#endif // __MINGW32__
++      if (fp_ != stdin && fp_ != stderr) {
++        rv = fclose(fp_);
++      }
++      fp_ = nullptr;
++    }
++  }
++
++  virtual size_t write(const char* str) CXX11_OVERRIDE
++  {
++    return fwrite(str, 1, strlen(str), fp_);
++  }
++
++  virtual int flush() CXX11_OVERRIDE
++  {
++    return fflush(fp_);
++  }
++
++  virtual int vprintf(const char* format, va_list va) CXX11_OVERRIDE
++  {
++    return vfprintf(fp_, format, va);
++  }
++
++  virtual bool supportsColor() CXX11_OVERRIDE
++  {
++    return true;
++  }
++
++private:
++  FILE *fp_;
++};
++
++} // namespace aria2
++
++#endif // D_NULL_OUTPUT_FILE_H
+diff --git a/src/Makefile.am b/src/Makefile.am
+index cb6e3b7c..2a811f61 100644
+--- a/src/Makefile.am
++++ b/src/Makefile.am
+@@ -274,7 +274,7 @@ SRCS =  \
+ 	libssl_compat.h
+ 
+ if MINGW_BUILD
+-SRCS += WinConsoleFile.cc WinConsoleFile.h
++SRCS += WinConsoleFile.cc WinConsoleFile.h DirectOutputFile.h
+ endif # MINGW_BUILD
+ 
+ if ENABLE_WEBSOCKET
+diff --git a/src/console.cc b/src/console.cc
+index 6147bbb8..08ee9118 100644
+--- a/src/console.cc
++++ b/src/console.cc
+@@ -35,7 +35,7 @@
+ #include "console.h"
+ #include "NullOutputFile.h"
+ #ifdef __MINGW32__
+-#  include "WinConsoleFile.h"
++#  include "DirectOutputFile.h"
+ #else // !__MINGW32__
+ #  include "BufferedFile.h"
+ #endif // !__MINGW32__
+@@ -57,8 +57,8 @@ void initConsole(bool suppress)
+   }
+   else {
+ #ifdef __MINGW32__
+-    consoleCout = std::make_shared<WinConsoleFile>(STD_OUTPUT_HANDLE);
+-    consoleCerr = std::make_shared<WinConsoleFile>(STD_ERROR_HANDLE);
++    consoleCout = std::make_shared<DirectOutputFile>(stdout);
++    consoleCerr = std::make_shared<DirectOutputFile>(stderr);
+ #else  // !__MINGW32__
+     consoleCout = std::make_shared<BufferedFile>(stdout);
+     consoleCerr = std::make_shared<BufferedFile>(stderr);
+-- 
+2.43.0.windows.1
+
