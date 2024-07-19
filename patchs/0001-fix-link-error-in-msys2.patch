@@ -1,14 +1,14 @@
-From d1054de2d5c21cf109b445a3af5cb1bf99d98f21 Mon Sep 17 00:00:00 2001
+From 138432920ae4c69faaadccdbb8ede35751425e69 Mon Sep 17 00:00:00 2001
 From: ChiaYen Kan <kcygamil@gmail.com>
-Date: Mon, 6 Mar 2023 14:37:55 +0800
+Date: Fri, 19 Jul 2024 08:50:24 +0800
 Subject: [PATCH] fix link error in msys2
 
 ---
- configure.ac | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ configure.ac | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
 diff --git a/configure.ac b/configure.ac
-index 10acaba0..1e16dd92 100644
+index 98439946..f3de14e9 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -208,6 +208,15 @@ if test "x$have_cppunit" != "xyes"; then
@@ -27,20 +27,6 @@ index 10acaba0..1e16dd92 100644
  # Check availability of libz
  if test "x$with_libz" = "xyes"; then
    PKG_CHECK_MODULES([ZLIB], [zlib >= 1.2.3], [have_zlib=yes], [have_zlib=no])
-@@ -503,6 +512,13 @@ if test "x$with_libcares" = "xyes"; then
-                     [have_libcares=no])
-   if test "x$have_libcares" = "xyes"; then
-     AC_DEFINE([HAVE_LIBCARES], [1], [Define to 1 if you have libcares.])
-+    
-+    case "$host" in
-+      *mingw*)
-+        LIBCARES_LIBS="$LIBCARES_LIBS -liphlpapi"
-+      ;;
-+    esac
-+
-     save_LIBS=$LIBS
-     save_CPPFLAGS=$CPPFLAGS
-     LIBS="$LIBCARES_LIBS $LIBS"
 -- 
-2.30.0.windows.2
+2.43.0.windows.1
 
