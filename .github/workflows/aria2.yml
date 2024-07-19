@@ -12,7 +12,7 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: windows-2022
     defaults:
       run:
         shell: msys2 {0}
@@ -134,7 +134,7 @@ jobs:
           path: ./${{ env.filename }}/
   openssl3-doc:
     needs: build
-    runs-on: windows-latest
+    runs-on: windows-2022
     steps:
       - name: Create openssl3 document
         shell: bash
@@ -157,7 +157,7 @@ jobs:
           path: about-aria2-with-openssl3.txt
   aria2-source:
     needs: build
-    runs-on: windows-latest
+    runs-on: windows-2022
     steps:
       - run: git config --global core.autocrlf false
         shell: bash
