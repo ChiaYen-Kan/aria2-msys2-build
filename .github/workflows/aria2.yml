@@ -73,6 +73,7 @@ jobs:
         working-directory: ./aria2
         run: |
           patch -p1 < ../build/patchs/0001-fix-link-error-in-msys2.patch
+          patch -p1 < ../build/patchs/0003-fix-check-file-size-error-when-build-with-msys2.patch
       - name: Configure
         working-directory: ./aria2
         run: |
