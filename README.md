@@ -9,13 +9,13 @@ all lib use msys2 pre-build version without custom build
 ------------
 ### Versions
 
-current (at 2024-4) build with 3 system lib and 3 tls lib
+current (at 2026-4) build with 3 system lib and 3 tls lib
 
 |  | wintls | openssl 3 | gnutls |
 |-|:-:|:-------------:|:------:|
-| mingw64 lib | win7/win10 |  win7/win10 | win7/win10 |
-| ucrt64 lib | win7/win10 | win7/win10 | win7/win10 |
-| clang64 lib | win7/win10 | win7/win10 | win10 |
+| mingw64 lib | win10/win11 |  win10/win11 | win10/win11 |
+| ucrt64 lib | win10/win11 | win10/win11 | win10/win11 |
+| clang64 lib | win10/win11 | win10/win11 | win10/win11 |
 
 
 ------------
