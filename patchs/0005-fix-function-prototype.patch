@@ -1,0 +1,43 @@
+From 4044a24a1d33b851ce38f2d03b848089a4c1aca7 Mon Sep 17 00:00:00 2001
+From: ChiaYen Kan <kcygamil@gmail.com>
+Date: Thu, 30 Apr 2026 13:43:17 +0800
+Subject: [PATCH] fix function prototype
+
+---
+ src/gai_strerror.c | 3 +--
+ src/gai_strerror.h | 4 ----
+ 2 files changed, 1 insertion(+), 6 deletions(-)
+
+diff --git a/src/gai_strerror.c b/src/gai_strerror.c
+index 5ea304ba..293baa6c 100644
+--- a/src/gai_strerror.c
++++ b/src/gai_strerror.c
+@@ -87,8 +87,7 @@ static char* eai_errlist[] = {
+ /*
+  * gai_strerror().
+  */
+-const char* gai_strerror(ecode)
+-int ecode;
++const char* gai_strerror(int ecode)
+ {
+   if (ecode < 0 || ecode > EAI_SYSTEM)
+     return _("Unknown error");
+diff --git a/src/gai_strerror.h b/src/gai_strerror.h
+index 1ee77ca2..cc0a7e09 100644
+--- a/src/gai_strerror.h
++++ b/src/gai_strerror.h
+@@ -52,11 +52,7 @@ extern "C" {
+ /*
+  * Functions.
+  */
+-#ifdef __STDC__
+ const char* gai_strerror(int);
+-#else
+-const char* gai_strerror();
+-#endif
+ 
+ #ifdef __cplusplus
+ };
+-- 
+2.49.0.windows.1
+

@@ -74,7 +74,9 @@ jobs:
         run: |
           patch -p1 < ../build/patchs/0001-fix-link-error-in-msys2.patch
           patch -p1 < ../build/patchs/0002-for-colorful-PIPE.patch
-          patch -p1 < ../build/patchs/0003-fix-check-file-size-error-when-build-with-msys2
+          patch -p1 < ../build/patchs/0003-fix-check-file-size-error-when-build-with-msys2.patch
+          patch -p1 < ../build/patchs/0004-Remove-undef-SIZE_MAX.patch
+          patch -p1 < ../build/patchs/0005-fix-function-prototype.patch
       - name: Configure
         working-directory: ./aria2
         run: |
