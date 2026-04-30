@@ -51,13 +51,13 @@ jobs:
       - run: git config --global core.autocrlf false
         shell: bash
       - name: Checkout aria2
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: aria2/aria2
           fetch-depth: 0
           path: ./aria2
       - name: Checkout build
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
           path: ./build
@@ -74,6 +74,7 @@ jobs:
         run: |
           patch -p1 < ../build/patchs/0001-fix-link-error-in-msys2.patch
           patch -p1 < ../build/patchs/0002-for-colorful-PIPE.patch
+          patch -p1 < ../build/patchs/0003-fix-check-file-size-error-when-build-with-msys2
       - name: Configure
         working-directory: ./aria2
         run: |
@@ -118,7 +119,7 @@ jobs:
           ldd ./${{ env.filename }}/aria2c.exe | grep "=> /" | grep ${{ matrix.sys }} | awk '{print $3}' | xargs -I '{}' cp -v '{}' ./${{ env.filename }}/
           find ./${{ env.filename }}/ -name '*.dll' -exec strip {} \;
       - name: Upload
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: ${{ env.filename }}
           path: ./${{ env.filename }}/
