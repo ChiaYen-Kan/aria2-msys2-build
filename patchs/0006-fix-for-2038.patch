@@ -1,0 +1,27 @@
+From 19f2a28fd3beee33d3bbeacba5915282e8a14c5a Mon Sep 17 00:00:00 2001
+From: "Bernhard M. Wiedemann" <bwiedemann@suse.de>
+Date: Sun, 3 May 2026 06:28:40 +0200
+Subject: [PATCH] Avoid integer overflow in year 2038
+
+See https://en.wikipedia.org/wiki/Year_2038_problem
+
+This patch was done while reviewing potential year-2038 issues in openSUSE.
+---
+ src/ServerStatMan.cc | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/ServerStatMan.cc b/src/ServerStatMan.cc
+index 1f551d9e05..805c32604f 100644
+--- a/src/ServerStatMan.cc
++++ b/src/ServerStatMan.cc
+@@ -219,8 +219,8 @@ bool ServerStatMan::load(const std::string& filename)
+       }
+       sstat->setCounter(uintval);
+     }
+-    int32_t intval;
+-    if (!util::parseIntNoThrow(intval, m[S_LAST_UPDATED])) {
++    int64_t intval;
++    if (!util::parseLLIntNoThrow(intval, m[S_LAST_UPDATED])) {
+       continue;
+     }
+     sstat->setLastUpdated(Time(intval));

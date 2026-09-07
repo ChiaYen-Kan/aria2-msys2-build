@@ -1,0 +1,35 @@
+From ebbcfd802bca9d800b5bd18b7e961f001dbca221 Mon Sep 17 00:00:00 2001
+From: ChiaYen Kan <kcygamil@gmail.com>
+Date: Mon, 7 Sep 2026 15:53:26 +0800
+Subject: [PATCH] fix tzname issue for URCT build
+
+---
+ src/strptime.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/src/strptime.c b/src/strptime.c
+index a27e6aa5..a3b074be 100644
+--- a/src/strptime.c
++++ b/src/strptime.c
+@@ -409,10 +409,18 @@ static char* _strptime(const char* buf, const char* format, struct tm* timeptr,
+             if (0 == strcmp(zonestr, "GMT")) {
+               *gmt = 1;
+             }
++#if defined(_UCRT)
++            else if (0 == strcmp(zonestr, _tzname[0])) {
++#else
+             else if (0 == strcmp(zonestr, tzname[0])) {
++#endif
+               timeptr->tm_isdst = 0;
+             }
++#if defined(_UCRT)            
++            else if (0 == strcmp(zonestr, _tzname[1])) {
++#else
+             else if (0 == strcmp(zonestr, tzname[1])) {
++#endif
+               timeptr->tm_isdst = 1;
+             }
+             else {
+-- 
+2.49.0.windows.1
+

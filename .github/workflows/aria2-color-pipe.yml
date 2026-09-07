@@ -77,6 +77,9 @@ jobs:
           patch -p1 < ../build/patchs/0003-fix-check-file-size-error-when-build-with-msys2.patch
           patch -p1 < ../build/patchs/0004-Remove-undef-SIZE_MAX.patch
           patch -p1 < ../build/patchs/0005-fix-function-prototype.patch
+          patch -p1 < ../build/patchs/0006-fix-for-2038.patch
+          patch -p1 < ../build/patchs/0007-fix-for-nettle-4.0.patch
+          patch -p1 < ../build/patchs/0008-fix-tzname-issue-for-URCT-build.patch
       - name: Configure
         working-directory: ./aria2
         run: |
@@ -121,7 +124,7 @@ jobs:
           ldd ./${{ env.filename }}/aria2c.exe | grep "=> /" | grep ${{ matrix.sys }} | awk '{print $3}' | xargs -I '{}' cp -v '{}' ./${{ env.filename }}/
           find ./${{ env.filename }}/ -name '*.dll' -exec strip {} \;
       - name: Upload
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ env.filename }}
           path: ./${{ env.filename }}/
