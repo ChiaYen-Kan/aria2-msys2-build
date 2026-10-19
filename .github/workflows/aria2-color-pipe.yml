@@ -20,15 +20,11 @@ jobs:
       # fail-fast: true
       # max-parallel: 2
       matrix:
-        sys: [mingw64, ucrt64, clang64]
+        sys: [ucrt64]
         tls: [gnutls]
         include:
-        - sys: mingw64
-          env: x86_64
         - sys: ucrt64
           env: ucrt-x86_64
-        - sys: clang64
-          env: clang-x86_64
     steps:
       - name: Install toolchain and libraries
         uses: msys2/setup-msys2@v2
@@ -90,10 +86,10 @@ jobs:
           autoreconf -i
           ./configure ARIA2_STATIC=yes ${SSL_CONFIG}
 
-          if [ "${{ matrix.tls }}" == "gnutls" ]; then
-            sed 's/-lp11-kit/-lp11-kit.dll/g' -i src/Makefile
-            sed 's\-lhogweed\/${{ matrix.sys }}/lib/libhogweed.dll.a\g' -i src/Makefile
-          fi
+          # if [ "${{ matrix.tls }}" == "gnutls" ]; then
+          #   sed 's/-lp11-kit/-lp11-kit.dll/g' -i src/Makefile
+          #   sed 's\-lhogweed\/${{ matrix.sys }}/lib/libhogweed.dll.a\g' -i src/Makefile
+          # fi
       - name: Build
         working-directory: ./aria2
         run: |
@@ -111,18 +107,11 @@ jobs:
         run: |
           mkdir ${{ env.filename }}
           cp aria2/AUTHORS aria2/COPYING aria2/ChangeLog aria2/LICENSE.OpenSSL aria2/NEWS aria2/README.html aria2/README.mingw aria2/src/aria2c.exe ${{ env.filename }}
-      - name: Deploy - openssl
-        if: matrix.tls == 'openssl'
-        run: |
-          cp -rvf $MSYSTEM_PREFIX/lib/ossl-modules ${{ env.filename }}/
-          cp -rvf $MSYSTEM_PREFIX/bin/libcrypto-*.dll ${{ env.filename }}/
-          cp -rvf $MSYSTEM_PREFIX/bin/libssl-*.dll ${{ env.filename }}/
-          cp -rvf $MSYSTEM_PREFIX/etc/ssl/certs/ca-bundle.crt ${{ env.filename }}/
-      - name: Deploy - gnutls
-        if: matrix.tls == 'gnutls'
-        run: |
-          ldd ./${{ env.filename }}/aria2c.exe | grep "=> /" | grep ${{ matrix.sys }} | awk '{print $3}' | xargs -I '{}' cp -v '{}' ./${{ env.filename }}/
-          find ./${{ env.filename }}/ -name '*.dll' -exec strip {} \;
+      # - name: Deploy - gnutls
+      #   if: matrix.tls == 'gnutls'
+      #   run: |
+      #     ldd ./${{ env.filename }}/aria2c.exe | grep "=> /" | grep ${{ matrix.sys }} | awk '{print $3}' | xargs -I '{}' cp -v '{}' ./${{ env.filename }}/
+      #     find ./${{ env.filename }}/ -name '*.dll' -exec strip {} \;
       - name: Upload
         uses: actions/upload-artifact@v7
         with:
